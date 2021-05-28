@@ -1,0 +1,86 @@
+#!/bin/bash
+
+echo -e "\nstarting compiler..."
+
+compiler="g++"
+name="null"
+run="no"
+object=""
+files=()
+objects=()
+
+for arg in "$@" 
+do
+    case $arg in
+        --g++)
+        shift
+        ;;
+        --gcc)
+        compiler="gcc"
+        shift
+        ;;
+        -n=*|--name=*)
+        name="${arg#*=}"
+        shift
+        ;;
+        -r|--run)
+        run="yes"
+        shift
+        ;;
+        *)
+        files+=("$1")
+        shift
+        ;;
+    esac
+done
+
+if [ $compiler = "g++" ] 
+then
+    extension="cpp"
+else
+    extension="c"
+fi
+
+if [ $name = "null" ] 
+then
+    name="${files[0]}"
+	name="${name//.$extension/}"
+fi
+
+echo -e "compiler: $compiler"
+echo -e "name: $name"
+echo -e "extension: $extension"
+echo -e "files: ${files[*]}"
+echo -e "run: $run"
+
+for file in "${files[@]}" 
+do
+    echo -e "compiling $file..."
+    object="${file//$extension/o}"
+	objects+=("$object")
+    $compiler -c "$file" -o "$object"
+	if [ $? -ne 0 ]
+	then
+		echo -e "\ncompilation failed!\n"
+		exit 1
+	fi
+done
+
+echo -e "linking files: $objects"
+$compiler -o $name ${objects[*]}
+
+if [ $? -ne 0 ]
+then
+	echo -e "\nlinking failed!\n"
+	exit 1
+else
+	echo -e "build successfully!\n"
+fi
+
+if [ $run = "yes" ] 
+then
+    echo -e "running $name...\n"
+    printf %"$COLUMNS"s |tr " " "#"
+    echo -e "\n"
+    ./$name
+fi
