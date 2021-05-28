@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -e "\Uninstalling My-Compiler..."
+echo -e "\nUninstalling My-Compiler..."
 echo -e "Entering the compile folder..."
 cd /usr/bin
 echo -e "Uninstalling..."
